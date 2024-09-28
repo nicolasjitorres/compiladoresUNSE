@@ -1,45 +1,48 @@
 lexer grammar SimpleLexer;
 
-// String
-CADENA: '"' [^"\r\n]* '"';  
-
-// Número (incluye floats con coma)
-NUMERO: [+-]?([1-9][0-9]*|[0])([,][0-9]+)?;  
-
-// Simbolos
+// Símbolos
 LPAREN   : '(' ;
 RPAREN   : ')' ;
 COLON    : ':' ;
 SEMICOLON: ';' ;
 
 // Operadores Aritméticos
-OPPRIMERNIVEL: '^';  
-OPSEGUNDONIVEL: '%' | '×' | '/'; 
-OPTERCERNIVEL: '+' | '-'; 
+OPPRIMERNIVEL: '^' ;
+OPSEGUNDONIVEL: '%' | '×' | '/' ;
+OPTERCERNIVEL: '+' | '-' ;
+
+// Operadores de Asignacion
+OPERADORASIGNACION: '=';
 
 // Operadores de Comparación
-OPERADORCOMPARACION: '==' | '!=' | '>' | '<' | '>=' | '<=';  
+OPERADORCOMPARACION: '==' | '!=' | '>' | '<' | '>=' | '<=' ;
 
 // Operadores Lógicos
-OPERADORLOGICO: 'AND' | 'OR';  
+OPERADORLOGICO: 'AND' | 'OR' ;
 
 // Booleanos
-BOOLEANO: 'TRUE' | 'FALSE';  
+BOOLEANO: 'TRUE' | 'FALSE' ;
 
-// Comentarios (estos los deberia de omitir)
-COMENTARIO: '/*' .*? '*/' -> skip;  
+// Comentarios (estos los debería de omitir)
+COMENTARIO: '/' .? '*/' -> skip ;
 
 // Tipos de dato
-TIPODATO: 'BOOLEAN' | 'STRING';  
+TIPODATO: 'BOOLEAN' | 'STRING' ;
 
 // Tipos de dato numéricos
-TIPODATONUM: 'INT' | 'FLOAT';  
+TIPODATONUM: 'INT' | 'FLOAT' ;
 
 // Palabras reservadas
-PALCLAVE: 'RETURN' | 'MODULE' | 'NULL' | 'IF' | 'ELSE' | 'ENDIF' | 'WHILE' | 'ENDWHILE' | 'CALL MODULE';  
+PALCLAVE: 'PRINT' | 'RETURN' | 'MODULE' | 'NULL' | 'IF' | 'ELSE' | 'ENDIF' | 'WHILE' | 'ENDWHILE' | 'CALL MODULE' ;
+
+// String
+CADENA: '"' ( ~["\\] | '\\' . )* '"' ;
 
 // Identificador
-ID: [a-zA-Z][a-zA-Z0-9]*;  
+ID: [a-zA-Z][a-zA-Z0-9]* ;
 
-// Espacios en blanco y nuevas líneas tiene que ignorar 
-WS: [ \t\r\n] -> skip;  
+// Número (incluye floats con coma)
+NUMERO:  [+-]?([0-9]+)([,][0-9]+)? ;
+
+// Espacios en blanco y nuevas líneas
+WS: [ \t\r\n] -> skip ;

@@ -1,2 +1,17 @@
 MODULE myModule() : RETURN NULL;
 IF (x == 5) : PRINT("Hello"); ENDIF;
+MODULE myModule() : RETURN NULL;
+IF (x == 5) : PRINT("Hello");
+ENDIF;
+
+MODULE anotherModule() : RETURN TRUE;
+IF (y != 10) : PRINT("Value is not 10");
+ELSE : PRINT("Value is 10");
+ENDIF;
+
+WHILE (count < 5) : 
+    PRINT("Count is " + count);
+    count = count + 1;
+ENDWHILE;
+
+CALL MODULE myModule();
