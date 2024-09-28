@@ -5,6 +5,7 @@ LPAREN   : '(' ;
 RPAREN   : ')' ;
 COLON    : ':' ;
 SEMICOLON: ';' ;
+COMMA: ',' ;
 
 // Operadores Aritméticos
 OPPRIMERNIVEL: '^' ;
@@ -24,16 +25,26 @@ OPERADORLOGICO: 'AND' | 'OR' ;
 BOOLEANO: 'TRUE' | 'FALSE' ;
 
 // Comentarios (estos los debería de omitir)
-COMENTARIO: '/' .? '*/' -> skip ;
+COMENTARIO: '/*' .*? '*/' -> skip ;
 
 // Tipos de dato
-TIPODATO: 'BOOLEAN' | 'STRING' ;
-
+BOOLEAN: 'BOOLEAN';
+STRING: 'STRING';
 // Tipos de dato numéricos
-TIPODATONUM: 'INT' | 'FLOAT' ;
-
+INT: 'INT';
+FLOAT: 'FLOAT';
 // Palabras reservadas
-PALCLAVE: 'PRINT' | 'RETURN' | 'MODULE' | 'NULL' | 'IF' | 'ELSE' | 'ENDIF' | 'WHILE' | 'ENDWHILE' | 'CALL MODULE' ;
+MODULE   : 'MODULE' ;
+NULL     : 'NULL' ;
+RETURN   : 'RETURN' ;
+CALL     : 'CALL' ;
+PRINT    : 'PRINT' ;
+IF       : 'IF' ;
+ELSE     : 'ELSE' ;
+ENDIF    : 'ENDIF' ;
+WHILE    : 'WHILE' ;
+ENDWHILE : 'ENDWHILE' ;
+
 
 // String
 CADENA: '"' ( ~["\\] | '\\' . )* '"' ;
