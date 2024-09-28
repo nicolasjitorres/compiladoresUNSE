@@ -26,7 +26,7 @@ OPERADORLOGICO: 'AND' | 'OR' ;
 BOOLEANO: 'TRUE' | 'FALSE' ;
 
 // Comentarios (estos los debería de omitir)
-COMENTARIO: '/' .? '*/' -> skip ;
+COMENTARIO: '/*' .? '*/' -> skip ;
 
 // Tipos de dato
 STRING: 'STRING';
