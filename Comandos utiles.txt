@@ -1,0 +1,10 @@
+Comandos para ejecutar:
+
+antlr4 SimpleLexer.g4
+antlr4 SimpleParser.g4
+java -jar C:/antlr/antlr-4.13.2-complete.jar -Dlanguage=Java SimpleLexer.g4
+java -jar C:/antlr/antlr-4.13.2-complete.jar -Dlanguage=Java SimpleParser.g4
+javac -cp "C:/antlr/antlr-4.13.2-complete.jar" *.java
+javac -cp "C:/antlr/antlr-4.13.2-complete.jar;." TestParser.java
+java -cp "C:/antlr/antlr-4.13.2-complete.jar;." TestParser
+dot -Tpng tree.dot -o tree.png
