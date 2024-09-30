@@ -220,5 +220,45 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
     //     System.out.println(ctx.toString());
     // }
+    @Override
+    public void enterCondicion(SimpleParser.CondicionContext ctx) {
+        // Este método se llama al entrar en una condición
+        if (currentModuleTable==null) {
+            currentModuleTable=globalTable;
+        }
+        // Para verificar las variables en la condición
+        for (SimpleParser.CondicionRecContext condicionRec : ctx.condicionRec()) {
+            // Acceder a los términos lógicos en cada condicionRec
+            if (condicionRec.terminoLogico().size() > 0) {
+                for (SimpleParser.TerminoLogicoContext term : condicionRec.terminoLogico()) {
+                    if (term.operacion().termino().factor().ID() != null) {
+                        String varName = term.operacion().termino().factor().ID().getText();
+                        if (!currentModuleTable.variableExists(varName)) {
+                            System.err.println("Error: La variable " + varName + " no esta definida.");
+                        }else{
+                            System.out.println("Esta es una variable: "+varName);
+                        }
+                    } else {
+                        System.out.println("Este es un numero: " + term.operacion().getText());
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void enterCondicionRec(SimpleParser.CondicionRecContext ctx) {
+        if (ctx.LPAREN() != null) {
+            System.out.println("Condicion anidada detectada.");
+        } else {
+            // Procesar el término lógico y la comparación
+            String terminoIzquierdo = ctx.terminoLogico(0).getText(); // Primer término lógico
+            String operador = ctx.OPERADORCOMPARACION().getText(); // Operador de comparación
+            String terminoDerecho = ctx.terminoLogico(1).getText(); // Segundo término lógico
+            System.out.println("\nTermino logico y comparacion detectados: " + "\nTermino Izquierdo: "+terminoIzquierdo + "\nOperador: " + operador + "\nTermino Derecho: "+ terminoDerecho);
+        }
+
+
+    }
 
 }

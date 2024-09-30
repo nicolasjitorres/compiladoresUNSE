@@ -1,1 +1,5 @@
-PRINT("hola mundo");
+INT x=11;
+INT y=19;
+
+IF (x > 10 AND y <= 20):
+ENDIF;
