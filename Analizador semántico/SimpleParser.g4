@@ -6,13 +6,14 @@ options {
 }
 
 // REGLAS SINTACTICAS
-inicio: cuerpo | moduloInicio | COMENTARIO inicio | EOF;
+inicio: cuerpo | moduloInicio inicio | COMENTARIO inicio | EOF;
 
+//Hechas
 moduloInicio:
-	MODULE ID LPAREN parametro? RPAREN COLON cuerpo RETURN nullOrNombre SEMICOLON inicio;
+	MODULE ID LPAREN parametro? RPAREN COLON cuerpo RETURN nullOrNombre SEMICOLON;
 nullOrNombre: NULL | ID;
 
-// En proceso
+// Hechas
 parametro: tipo ID parametroRestante?;
 parametroRestante: COMMA tipo ID parametroRestante?;
 
@@ -51,10 +52,10 @@ imprimir: PRINT LPAREN imprimirRec RPAREN;
 imprimirRec: CADENA imprimirCont? | ID imprimirCont?;
 imprimirCont: COMMA imprimirRec?;
 
-// En proceso
+// Hechas
 llamada: (tipo ID OPERADORASIGNACION)? CALL MODULE ID LPAREN argumentoLl? RPAREN;
 argumentoLl: argumento (COMMA argumentoLl)?;
-argumento: ID | operacion | CADENA;
+argumento: BOOLEANO | ID | operacion | CADENA;
 
 // Hechas
 condicion: condicionRec (OPERADORLOGICO condicionRec)*;

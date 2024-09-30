@@ -28,7 +28,7 @@ public class TestParser {
         walker.walk(listener, tree); // Caminar por el árbol
 
         // Muestra el árbol de derivación en texto
-        System.out.println(tree.toStringTree(parser));
+        //System.out.println(tree.toStringTree(parser));
 
         // Generar archivo DOT
         // try (PrintWriter writer = new PrintWriter("tree.dot")) {

@@ -10,6 +10,11 @@ class SymbolTable {
         modules = new HashMap<>();
     }
 
+    public void clear() {
+        variables.clear();
+        modules.clear();
+    }
+
     public void defineVariable(String name, String type, String value) {
         Variable variable = new Variable(name, type, value);
         variables.put(name, variable);
@@ -31,6 +36,11 @@ class SymbolTable {
     // Método para verificar si una variable ya está definida
     public boolean variableExists(String name) {
         return variables.containsKey(name);
+    }
+
+    // Método para verificar si una variable ya está definida
+    public boolean moduleExists(String name) {
+        return modules.containsKey(name);
     }
 
     // Método para actualizar el valor de una variable existente
@@ -67,7 +77,5 @@ class SymbolTable {
             return null; // O un valor por defecto
         }
     }
-
-    
 
 }

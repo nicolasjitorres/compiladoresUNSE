@@ -1,9 +1,7 @@
-INT x = 1 + (-2);
+MODULE miModulo(INT parametro1, STRING parametro2, BOOLEAN verd) :
+    PRINT(parametro1);
+RETURN parametro2;
 
-PRINT(x);
+BOOLEAN z = FALSE;
 
-IF( 1 - 2 > 2):
-ENDIF;
-
-IF( 3 > (-2) * 3):
-ENDIF;
+CALL MODULE miModulo(3, "hola", z);
