@@ -52,7 +52,7 @@ class SymbolTable {
             case "INT":
                 return value.matches("[+-]?([0-9]+)");
             case "FLOAT":
-                return value.matches("[+-]?([0-9]+)([,][0-9]+)?"); 
+                return value.matches("[+-]?([0-9]+)([,][0-9]+)?");
             default:
                 return false;
         }
@@ -67,4 +67,7 @@ class SymbolTable {
             return null; // O un valor por defecto
         }
     }
+
+    
+
 }

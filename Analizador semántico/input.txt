@@ -1,5 +1,9 @@
-INT x=11;
-INT y=19;
+STRING x="Hola";
+STRING y="Chau";
+INT z = 12;
+INT num;
+num = 12;
+num = "";
 
-IF (x > 10 AND y <= 20):
+IF (x == "Hola" OR y == "Chu" AND "hoala" == "hola" OR x != y):
 ENDIF;
