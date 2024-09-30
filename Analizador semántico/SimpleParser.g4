@@ -17,7 +17,8 @@ nullOrNombre: NULL | ID;
 parametro: tipo ID parametroRestante?;
 parametroRestante: COMMA tipo ID parametroRestante?;
 
-cuerpo: (accion SEMICOLON cuerpoPrima)*;
+//Hechas
+cuerpo: (accion SEMICOLON cuerpoPrima)?;
 cuerpoPrima: COMENTARIO cuerpoPrima | cuerpo |;
 accion: si | mientras | variable | imprimir | llamada;
 

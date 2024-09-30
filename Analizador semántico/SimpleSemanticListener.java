@@ -11,103 +11,14 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         currentModuleTable = null;
     }
 
-    @Override
-    public void enterVariable(SimpleParser.VariableContext context) {
-        String variableName = context.ID().getText();
-        String variableType = "";
-        String variableValue = "";
-
-        if (context.tipo() != null) {
-            variableType = context.tipo().getText();
-        } else if (context.TIPODATONUM() != null) {
-            variableType = context.TIPODATONUM().toString();
-        } else if (context.BOOLEAN() != null) {
-            variableType = context.BOOLEAN().toString();
-        } else if (context.STRING() != null) {
-            variableType = context.STRING().toString();
+    public void enterInicio(SimpleParser.InicioContext ctx) {
+        if (ctx.cuerpo() != null) {
+            ejecutarCuerpo(ctx.cuerpo());
         }
-
-        if (context.CADENA() != null) {
-            variableValue = context.CADENA().getText();
-        } else if (context.BOOLEANO() != null) {
-            variableValue = context.BOOLEANO().getText();
-        } else if (context.operacion() != null) {
-            if (context.TIPODATONUM().getText().equals("INT")) {
-                String operationResult = evaluarOperacion(context.operacion());
-                String[] partes = operationResult.split("\\.");
-                String parteEntera = partes[0];
-                variableValue = parteEntera;
-                System.out.println(variableValue);
-            } else {
-                String operationResult = evaluarOperacion(context.operacion());
-                variableValue = operationResult;
-                System.out.println(variableValue);
-            }
-        } else if (context.variablePrima() != null) {
-            variableValue = context.variablePrima().getText();
+        if (ctx.moduloInicio() != null) {
+            ejecutarModuloInicio(ctx.moduloInicio());
         }
-
-        if (currentModuleTable == null) {
-            currentModuleTable = globalTable;
-        }
-
-        // Verificar si la variable ya existe en la tabla de símbolos
-        if (currentModuleTable.variableExists(variableName)) {
-            Variable variableExistente = currentModuleTable.lookupVariable(variableName);
-            if (variableType != "") {
-                System.err.println("\nError: La variable " + variableName + " ya esta definida.");
-                return;
-            }
-
-            if (!currentModuleTable.isValueTypeCompatible(variableExistente.getType(), variableValue)) {
-                System.err
-                        .println("\nError: La variable " + variableName + " es de tipo " + variableExistente.getType());
-                return;
-            }
-            currentModuleTable.updateVariableValue(variableName, variableValue);
-
-        } else {
-            // Definir la variable en la tabla de símbolos actual
-            currentModuleTable.defineVariable(variableName, variableType, variableValue);
-        }
-
-        if (variableType != "") {
-            System.out.println("\nVariable detectada de nombre " + variableName
-                    + " y tipo " + variableType);
-        } else {
-            System.out.println("\nVariable detectada de nombre " + variableName);
-        }
-
-        if (variableValue != "") {
-            System.out.println("La variable tiene como valor: " + variableValue.replaceAll("\"", ""));
-        } else {
-            System.out.println("La variable no tiene valor asignado.");
-        }
-
-    }
-
-    @Override
-    public void enterImprimir(SimpleParser.ImprimirContext ctx) {
-        System.out.print("Iniciando instruccion de impresion: ");
-        if (ctx.imprimirRec() != null) {
-            procesarImprimirRec(ctx.imprimirRec(), true); // 'true' para el primer elemento
-        }
-        System.out.println(); // Salto de línea al final
-    }
-
-    @Override
-    public void enterCondicion(SimpleParser.CondicionContext ctx) {
-
-        if (currentModuleTable == null) {
-            currentModuleTable = globalTable;
-        }
-
-        try {
-            System.out.println("\nCondicion: " + ctx.getText());
-            System.out.println("Resultado de la condicion: " + evaluarCondicion(ctx));
-        } catch (CondicionInvalidaException e) {
-            System.out.println(e.getMessage());
-        }
+        return;
     }
 
     private boolean evaluarCondicion(SimpleParser.CondicionContext ctx) throws CondicionInvalidaException {
@@ -253,7 +164,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
     }
 
     private String evaluarOperacion(SimpleParser.OperacionContext ctx) {
-        System.out.println("Evaluando operacion: " + ctx.getText());
         String result = evaluarTermino(ctx.termino());
 
         if (result == null) {
@@ -360,7 +270,7 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         if (ctx.operacion() != null) {
             type = "INT";
         }
-        if(ctx.BOOLEANO() != null){
+        if (ctx.BOOLEANO() != null) {
             type = "BOOLEAN";
         }
         return type;
@@ -412,27 +322,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         }
     }
 
-    @Override
-    public void enterModuloInicio(SimpleParser.ModuloInicioContext ctx) {
-        String nombreModulo = ctx.ID().getText();
-        String tipoRetorno = ctx.nullOrNombre().getText();
-        if (globalTable.moduleExists(nombreModulo)) {
-            System.out.println("El modulo " + nombreModulo + " ya esta definido.");
-            return;
-        }
-        globalTable.defineModule(nombreModulo, tipoRetorno, null);
-
-        currentModuleTable = new SymbolTable();
-
-        SimpleParser.ParametroContext parametro = ctx.parametro();
-        guardarParametro(parametro, nombreModulo);
-    }
-
-    @Override
-    public void exitModuloInicio(SimpleParser.ModuloInicioContext ctx) {
-        this.currentModuleTable = null;
-    }
-
     private void guardarParametro(SimpleParser.ParametroContext ctx, String nombreModulo) {
         String tipo = ctx.tipo().getText();
         String nombre = ctx.ID().getText();
@@ -444,11 +333,9 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
         Module modulo = globalTable.lookupModule(nombreModulo);
         modulo.addParametro(tipo, nombre, null);
-        System.out.println(modulo.getParametros());
 
         currentModuleTable.defineVariable(nombre, tipo, null);
-        System.out.println("Parametro definido: " + nombre + " de tipo " + tipo);
-
+        
         if (ctx.parametroRestante() != null) {
             guardarParametroRestante(ctx.parametroRestante(), nombreModulo);
         }
@@ -465,63 +352,12 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
         Module modulo = globalTable.lookupModule(nombreModulo);
         modulo.addParametro(tipo, nombre, null);
-        System.out.println(modulo.getParametros());
 
         currentModuleTable.defineVariable(nombre, tipo, null);
-        System.out.println("Parametro definido: " + nombre + " de tipo " + tipo);
-
         if (ctx.parametroRestante() != null) {
             guardarParametroRestante(ctx.parametroRestante(), nombreModulo);
         }
     }
-
-    @Override
-    public void enterLlamada(SimpleParser.LlamadaContext ctx) {
-        String moduleName = "";
-
-        if (ctx.tipo() != null) {
-            moduleName = ctx.ID(1).getText();
-        } else {
-            moduleName = ctx.ID(0).getText();
-        }
-
-        if (!globalTable.moduleExists(moduleName)) {
-            System.err.println("Error: El modulo " + moduleName + " no esta definido.");
-            return;
-        }
-
-        Module moduloALlamar = globalTable.lookupModule(moduleName);
-
-        List<Parametro> parametros = moduloALlamar.getParametros();
-        List<Parametro> argumentos = procesarArgumentos(ctx.argumentoLl());
-
-        System.out.println(parametros);
-        System.out.println(argumentos);
-
-        if (parametros.size() != argumentos.size()) {
-            System.out.println("Distinta cant de args y params");
-            return;
-        }
-
-        for (int i = 0; i < moduloALlamar.getParametros().size(); i++) {
-            Parametro parametro = parametros.get(i);
-            Parametro argumento = argumentos.get(i);
-            if (parametro.getType().toString().equals(argumento.getType().toString())) {
-                parametro.setValue(argumento.getValue());
-            } else {
-                System.out.println("El argumento tiene un tipo ilegal.");
-                return;
-            }
-        }
-
-        if (ctx.argumentoLl() != null) {
-            System.out.println(parametros);
-        } else {
-            System.out.println("Llamada al modulo " + moduleName + " sin argumentos.");
-        }
-    }
-
-    
 
     private List<Parametro> procesarArgumentos(SimpleParser.ArgumentoLlContext ctx) {
         List<Parametro> argumentos = new ArrayList<>();
@@ -544,6 +380,182 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         }
 
         return argumentos;
+    }
+
+    public void ejecutarCuerpo(SimpleParser.CuerpoContext ctx) {
+        if (ctx.accion() != null) {
+            ejecutarAccion(ctx.accion());
+        }
+        if (ctx.cuerpoPrima() != null) {
+            ejecutarCuerpoPrima(ctx.cuerpoPrima());
+        }
+    }
+
+    public void ejecutarCuerpoPrima(SimpleParser.CuerpoPrimaContext ctx) {
+        if (ctx.cuerpo() != null) {
+            ejecutarCuerpo(ctx.cuerpo());
+        }
+    }
+
+    public void ejecutarAccion(SimpleParser.AccionContext ctx) {
+        if (ctx.si() != null) {
+            ejecutarSi(ctx.si());
+        }
+        if (ctx.mientras() != null) {
+            ejecutarMientras(ctx.mientras());
+        }
+        if (ctx.variable() != null) {
+            ejecutarVariable(ctx.variable());
+        }
+        if (ctx.imprimir() != null) {
+            ejecutarImprimir(ctx.imprimir());
+        }
+        if (ctx.llamada() != null) {
+            ejecutarLlamada(ctx.llamada());
+        }
+    }
+
+    public void ejecutarSi(SimpleParser.SiContext ctx) {
+        try {
+            boolean condicion = evaluarCondicion(ctx.condicion());
+            if (condicion) {
+                ejecutarCuerpo(ctx.cuerpo(0));
+                return;
+            }
+            if (ctx.ELSE() != null) {
+                ejecutarCuerpo(ctx.cuerpo(1));
+                return;
+            }
+
+        } catch (CondicionInvalidaException e) {
+            return;
+        }
+        return;
+    }
+
+    public void ejecutarMientras(SimpleParser.MientrasContext ctx) {
+    }
+
+    public void ejecutarVariable(SimpleParser.VariableContext context) {
+        String variableName = context.ID().getText();
+        String variableType = "";
+        String variableValue = "";
+
+        if (context.tipo() != null) {
+            variableType = context.tipo().getText();
+        } else if (context.TIPODATONUM() != null) {
+            variableType = context.TIPODATONUM().toString();
+        } else if (context.BOOLEAN() != null) {
+            variableType = context.BOOLEAN().toString();
+        } else if (context.STRING() != null) {
+            variableType = context.STRING().toString();
+        }
+
+        if (context.CADENA() != null) {
+            variableValue = context.CADENA().getText();
+        } else if (context.BOOLEANO() != null) {
+            variableValue = context.BOOLEANO().getText();
+        } else if (context.operacion() != null) {
+            if (context.TIPODATONUM().getText().equals("INT")) {
+                String operationResult = evaluarOperacion(context.operacion());
+                String[] partes = operationResult.split("\\.");
+                String parteEntera = partes[0];
+                variableValue = parteEntera;
+            } else {
+                String operationResult = evaluarOperacion(context.operacion());
+                variableValue = operationResult;
+            }
+        } else if (context.variablePrima() != null) {
+            variableValue = context.variablePrima().getText();
+        }
+
+        if (currentModuleTable == null) {
+            currentModuleTable = globalTable;
+        }
+
+        // Verificar si la variable ya existe en la tabla de símbolos
+        if (currentModuleTable.variableExists(variableName)) {
+            Variable variableExistente = currentModuleTable.lookupVariable(variableName);
+            if (variableType != "") {
+                System.err.println("\nError: La variable " + variableName + " ya esta definida.");
+                return;
+            }
+
+            if (!currentModuleTable.isValueTypeCompatible(variableExistente.getType(), variableValue)) {
+                System.err
+                        .println("\nError: La variable " + variableName + " es de tipo " + variableExistente.getType());
+                return;
+            }
+            currentModuleTable.updateVariableValue(variableName, variableValue);
+
+        } else {
+            // Definir la variable en la tabla de símbolos actual
+            currentModuleTable.defineVariable(variableName, variableType, variableValue);
+        }
+
+    }
+
+    public void ejecutarImprimir(SimpleParser.ImprimirContext ctx) {
+        // System.out.print("Iniciando instruccion de impresion: ");
+        if (ctx.imprimirRec() != null) {
+            procesarImprimirRec(ctx.imprimirRec(), true); // 'true' para el primer elemento
+        }
+        System.out.println("");
+    }
+
+    public void ejecutarLlamada(SimpleParser.LlamadaContext ctx) {
+        String moduleName = "";
+
+        if (ctx.tipo() != null) {
+            moduleName = ctx.ID(1).getText();
+        } else {
+            moduleName = ctx.ID(0).getText();
+        }
+
+        if (!globalTable.moduleExists(moduleName)) {
+            System.err.println("ERROR: El modulo " + moduleName + " no esta definido.");
+            return;
+        }
+
+        Module moduloALlamar = globalTable.lookupModule(moduleName);
+
+        List<Parametro> parametros = moduloALlamar.getParametros();
+        List<Parametro> argumentos = procesarArgumentos(ctx.argumentoLl());
+
+        if (parametros.size() != argumentos.size()) {
+            System.out.println("ERROR: Distinta cant de args y params");
+            return;
+        }
+
+        for (int i = 0; i < moduloALlamar.getParametros().size(); i++) {
+            Parametro parametro = parametros.get(i);
+            Parametro argumento = argumentos.get(i);
+            if (parametro.getType().toString().equals(argumento.getType().toString())) {
+                parametro.setValue(argumento.getValue());
+            } else {
+                System.out.println("ERROR: El argumento tiene un tipo ilegal.");
+                return;
+            }
+        }
+
+    }
+
+    public void ejecutarModuloInicio(SimpleParser.ModuloInicioContext ctx) {
+        String nombreModulo = ctx.ID().getText();
+        String tipoRetorno = ctx.nullOrNombre().getText();
+        if (globalTable.moduleExists(nombreModulo)) {
+            System.out.println("ERROR: El modulo " + nombreModulo + " ya esta definido.");
+            return;
+        }
+        globalTable.defineModule(nombreModulo, tipoRetorno, null);
+
+        currentModuleTable = new SymbolTable();
+
+        SimpleParser.ParametroContext parametro = ctx.parametro();
+        guardarParametro(parametro, nombreModulo);
+
+        this.currentModuleTable = null;
+
     }
 
 }
