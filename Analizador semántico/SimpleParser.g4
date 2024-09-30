@@ -35,7 +35,7 @@ variable:
 variablePrima: operacion | CADENA | BOOLEANO;
 tipo: STRING | BOOLEAN | TIPODATONUM;
 
-// En proceso
+// Hechas
 operacion: termino operacionRec?;
 operacionRec: OPTERCERNIVEL termino operacionRec?;
 termino: factor terminoRec?;

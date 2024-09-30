@@ -2,38 +2,38 @@ lexer grammar SimpleLexer;
 // REGLAS DEL LEXER
 
 // Símbolos
-LPAREN   : '(' ;
-RPAREN   : ')' ;
-COLON    : ':' ;
-SEMICOLON: ';' ;
+LPAREN   : '(';
+RPAREN   : ')';
+COLON    : ':';
+SEMICOLON: ';';
 COMMA: ',';
 
 // Operadores Aritméticos
 OPPRIMERNIVEL: '^' ;
-OPSEGUNDONIVEL: '%' | '*' | '/' ;
-OPTERCERNIVEL: '+' | '-' ;
+OPSEGUNDONIVEL: '%' | '*' | '/';
+OPTERCERNIVEL: '+' | '-';
 
 // Operadores de Asignacion
 OPERADORASIGNACION: '=';
 
 // Operadores de Comparación
-OPERADORCOMPARACION: '==' | '!=' | '>' | '<' | '>=' | '<=' ;
+OPERADORCOMPARACION: '==' | '!=' | '>' | '<' | '>=' | '<=';
 
 // Operadores Lógicos
-OPERADORLOGICO: 'AND' | 'OR' ;
+OPERADORLOGICO: 'AND' | 'OR';
 
 // Booleanos
-BOOLEANO: 'TRUE' | 'FALSE' ;
+BOOLEANO: 'TRUE' | 'FALSE';
 
 // Comentarios (estos los debería de omitir)
-COMENTARIO: '/' .? '*/' -> skip ;
+COMENTARIO: '/' .? '*/' -> skip;
 
 // Tipos de dato
 STRING: 'STRING';
 BOOLEAN: 'BOOLEAN';
 
 // Tipos de dato numéricos
-TIPODATONUM: 'INT' | 'FLOAT' ;
+TIPODATONUM: 'INT' | 'FLOAT';
 
 // Palabras reservadas
 MODULE: 'MODULE';
@@ -48,13 +48,13 @@ PRINT: 'PRINT';
 CALL: 'CALL';
 
 // String
-CADENA: '"' ( ~["\\] | '\\' . )* '"' ;
+CADENA: '"' ( ~["\\] | '\\' . )* '"';
 
 // Identificador
-ID: [a-zA-Z][a-zA-Z0-9]* ;
+ID: [a-zA-Z][a-zA-Z0-9]*;
 
 // Número (incluye floats con coma)
-NUMERO:  [+-]?([0-9]+)([.][0-9]+)? ;
+NUMERO:  [-]?([0-9]+)([.][0-9]+)?;
 
 // Espacios en blanco y nuevas líneas
-WS: [ \t\r\n] -> skip ;
+WS: [ \t\r\n] -> skip;

@@ -1,5 +1,3 @@
-import java.util.HashMap;
-import java.util.Map;
 
 public class SimpleSemanticListener extends SimpleParserBaseListener {
 
@@ -8,8 +6,7 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
     public SimpleSemanticListener() {
         globalTable = new SymbolTable();
-        currentModuleTable = null; // Inicia sin un módulo activo
-
+        currentModuleTable = null;
     }
 
     @Override
@@ -190,10 +187,18 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         String terminoIzquierdo = ctx.terminoLogico(0).getText();
         String operador = ctx.OPERADORCOMPARACION().getText();
         String terminoDerecho = ctx.terminoLogico(1).getText();
-
-        // Obtener los valores correspondientes
-        String valorIzquierdo = obtenerValor(terminoIzquierdo);
-        String valorDerecho = obtenerValor(terminoDerecho);
+        String valorIzquierdo;
+        String valorDerecho;
+        if (ctx.terminoLogico(0).operacion() != null) {
+            valorIzquierdo = evaluateOperacion(ctx.terminoLogico(0).operacion());
+        } else {
+            valorIzquierdo = obtenerValor(terminoIzquierdo);
+        }
+        if (ctx.terminoLogico(1).operacion() != null) {
+            valorDerecho = evaluateOperacion(ctx.terminoLogico(1).operacion());
+        } else {
+            valorDerecho = obtenerValor(terminoDerecho);
+        }
 
         // Obtener los tipos
         String tipoIzquierdo = obtenerTipo(ctx.terminoLogico(0));
@@ -294,7 +299,8 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
                 break;
             case "/":
                 if (Math.abs(rightValue) < epsilon) {
-                    throw new DivisioCeroException("Error: Division por cero. No se pudo ejecutar el programa correctamente...");
+                    throw new DivisioCeroException(
+                            "Error: Division por cero. No se pudo ejecutar el programa correctamente...");
                 }
                 resultado = "" + (leftValue / rightValue);
                 break;
@@ -312,9 +318,9 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
     }
 
     private String evaluateOperacion(SimpleParser.OperacionContext ctx) {
-        System.out.println("Evaluando operacion: " + ctx.getText()); // Impresión para depuración
+        System.out.println("Evaluando operacion: " + ctx.getText());
         String result = evaluateTermino(ctx.termino());
-        
+
         if (result == null) {
             return null;
         }
@@ -324,9 +330,7 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
             while (operacionRecCtx != null) {
                 String operator = operacionRecCtx.OPTERCERNIVEL().getText();
                 String rightResult = evaluateTermino(operacionRecCtx.termino());
-                System.out.println("Evaluando: " + result + " " + operator + " " + rightResult); // Impresión para
-                                                                                                 // depuración
-                result = evaluateExpression(result.toString(), operator, rightResult.toString());
+                result = evaluateExpression(result, operator, rightResult.toString());
                 operacionRecCtx = operacionRecCtx.operacionRec();
             }
         } catch (DivisioCeroException e) {
@@ -383,12 +387,4 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
         return null;
     }
-
-    @Override
-    public void enterOperacion(SimpleParser.OperacionContext ctx) {
-        System.out.println("Entrando a la operacion: " + ctx.getText());
-        String result = evaluateOperacion(ctx);
-        System.out.println("Resultado de la operacion: " + result);
-    }
-
 }

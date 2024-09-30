@@ -1,3 +1,9 @@
-INT x = 1 + (2 / 0) ;
+INT x = 1 + (-2);
 
 PRINT(x);
+
+IF( 1 - 2 > 2):
+ENDIF;
+
+IF( 3 > (-2) * 3):
+ENDIF;

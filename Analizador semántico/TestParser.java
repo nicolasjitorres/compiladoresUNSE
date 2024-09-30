@@ -3,7 +3,6 @@ import org.antlr.v4.runtime.tree.*;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.io.PrintWriter;
 
 public class TestParser {
     public static void main(String[] args) throws Exception {
@@ -29,7 +28,7 @@ public class TestParser {
         walker.walk(listener, tree); // Caminar por el árbol
 
         // Muestra el árbol de derivación en texto
-        // System.out.println(tree.toStringTree(parser));
+        System.out.println(tree.toStringTree(parser));
 
         // Generar archivo DOT
         // try (PrintWriter writer = new PrintWriter("tree.dot")) {
@@ -40,51 +39,51 @@ public class TestParser {
         // }
     }
 
-    private static String generateDot(ParseTree tree, Parser parser) {
-        StringBuilder sb = new StringBuilder();
-        String nodeName = "node" + tree.hashCode();
+    // private static String generateDot(ParseTree tree, Parser parser) {
+    //     StringBuilder sb = new StringBuilder();
+    //     String nodeName = "node" + tree.hashCode();
 
-        // Comprobar si el nodo es un TerminalNode
-        if (tree instanceof TerminalNode) {
-            TerminalNode terminalNode = (TerminalNode) tree;
-            String terminalText = terminalNode.getText(); // Obtener el texto del nodo terminal
-            // Escapar caracteres problemáticos en el texto del nodo terminal
-            terminalText = escapeLabel(terminalText);
-            sb.append("  ").append(nodeName).append(" [label=\"").append(terminalText).append("\"];\n");
-        } else {
-            // Obtén el nombre de la regla sin "Context"
-            String label = tree.getClass().getSimpleName();
-            if (label.endsWith("Context")) {
-                label = label.substring(0, label.length() - "Context".length());
-            }
-            // Ignorar el label si es "TerminalNodeImpl"
-            if (!label.equals("TerminalNodeImpl")) {
-                // Escapar caracteres problemáticos en la etiqueta
-                label = escapeLabel(label);
-                sb.append("  ").append(nodeName).append(" [label=\"").append(label).append("\"];\n");
-            }
-        }
+    //     // Comprobar si el nodo es un TerminalNode
+    //     if (tree instanceof TerminalNode) {
+    //         TerminalNode terminalNode = (TerminalNode) tree;
+    //         String terminalText = terminalNode.getText(); // Obtener el texto del nodo terminal
+    //         // Escapar caracteres problemáticos en el texto del nodo terminal
+    //         terminalText = escapeLabel(terminalText);
+    //         sb.append("  ").append(nodeName).append(" [label=\"").append(terminalText).append("\"];\n");
+    //     } else {
+    //         // Obtén el nombre de la regla sin "Context"
+    //         String label = tree.getClass().getSimpleName();
+    //         if (label.endsWith("Context")) {
+    //             label = label.substring(0, label.length() - "Context".length());
+    //         }
+    //         // Ignorar el label si es "TerminalNodeImpl"
+    //         if (!label.equals("TerminalNodeImpl")) {
+    //             // Escapar caracteres problemáticos en la etiqueta
+    //             label = escapeLabel(label);
+    //             sb.append("  ").append(nodeName).append(" [label=\"").append(label).append("\"];\n");
+    //         }
+    //     }
 
-        // Recursivamente añade los nodos hijos
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            ParseTree child = tree.getChild(i);
-            String childName = "node" + child.hashCode();
-            sb.append(generateDot(child, parser)); // Recursividad
-            sb.append("  ").append(nodeName).append(" -> ").append(childName).append(";\n");
-        }
-        return sb.toString();
-    }
+    //     // Recursivamente añade los nodos hijos
+    //     for (int i = 0; i < tree.getChildCount(); i++) {
+    //         ParseTree child = tree.getChild(i);
+    //         String childName = "node" + child.hashCode();
+    //         sb.append(generateDot(child, parser)); // Recursividad
+    //         sb.append("  ").append(nodeName).append(" -> ").append(childName).append(";\n");
+    //     }
+    //     return sb.toString();
+    // }
 
-    private static String escapeLabel(String label) {
-        // Escapa comillas, barras invertidas y caracteres especiales
-        return label.replace("\\", "\\\\") // Escapa barra invertida
-                .replace("\"", "\\\"") // Escapa comillas dobles
-                .replace("\n", "\\n") // Escapa nueva línea
-                .replace("\r", "\\r") // Escapa retorno de carro
-                .replace("\t", "\\t") // Escapa tabulaciones
-                .replace("<", "\\<") // Escapa menor que
-                .replace(">", "\\>") // Escapa mayor que
-                .replace("&", "&amp;"); // Escapa ampersand
-    }
+    // private static String escapeLabel(String label) {
+    //     // Escapa comillas, barras invertidas y caracteres especiales
+    //     return label.replace("\\", "\\\\") // Escapa barra invertida
+    //             .replace("\"", "\\\"") // Escapa comillas dobles
+    //             .replace("\n", "\\n") // Escapa nueva línea
+    //             .replace("\r", "\\r") // Escapa retorno de carro
+    //             .replace("\t", "\\t") // Escapa tabulaciones
+    //             .replace("<", "\\<") // Escapa menor que
+    //             .replace(">", "\\>") // Escapa mayor que
+    //             .replace("&", "&amp;"); // Escapa ampersand
+    // }
 
 }
