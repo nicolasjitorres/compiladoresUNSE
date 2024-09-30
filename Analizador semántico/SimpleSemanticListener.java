@@ -1,18 +1,27 @@
+import java.util.HashMap;
+import java.util.Map;
+
 public class SimpleSemanticListener extends SimpleParserBaseListener {
 
     private SymbolTable globalTable;
     private SymbolTable currentModuleTable;
+    private Map<String, Integer> variableValues = new HashMap<>();
+    private String currentVariableName;
 
     public SimpleSemanticListener() {
         globalTable = new SymbolTable();
         currentModuleTable = null; // Inicia sin un módulo activo
+
     }
 
     @Override
     public void enterVariable(SimpleParser.VariableContext context) {
+        currentVariableName = context.ID().getText();
         String variableName = context.ID().getText();
         String variableType = "";
         String variableValue = "";
+
+        System.out.println("Estoy en enterVariable");
 
         if (context.tipo() != null) {
             variableType = context.tipo().getText();
@@ -29,7 +38,27 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         } else if (context.BOOLEANO() != null) {
             variableValue = context.BOOLEANO().getText();
         } else if (context.operacion() != null) {
-            variableValue = context.operacion().getText();
+            System.out.println("Estoy adentrooo");
+            // Caso TIPODATONUM ID OPERADORASIGNACION operacion
+            if (context.TIPODATONUM().getText() == "FLOAT") { //Este camino no está cambiado
+                Integer operationResult = evaluateOperacion(context.operacion()); 
+                if (operationResult != null) {
+                    variableValue = operationResult.toString();
+                    System.out.println(variableValue);
+                } else {
+                    System.err.println("Error al evaluar la operación para la variable: " + variableName);
+                    return;
+                }
+            } else {
+                Integer operationResult = evaluateOperacion(context.operacion());
+                if (operationResult != null) {
+                    variableValue = operationResult.toString();
+                    System.out.println(variableValue);
+                } else {
+                    System.err.println("Error al evaluar la operación para la variable: " + variableName);
+                    return;
+                }
+            }
         } else if (context.variablePrima() != null) {
             variableValue = context.variablePrima().getText();
         }
@@ -320,6 +349,131 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         // Podríamos agregar más lógica para casos especiales
         System.err.println("Error: No se puede comparar " + leftType + " con " + rightType);
         return false;
+    }
+
+    private Integer evaluateExpression(String left, String operator, String right) {
+        Integer leftValue = parseValue(left);
+        Integer rightValue = parseValue(right);
+
+        if (leftValue == null || rightValue == null)
+            return null; // Manejo de error en la evaluación
+
+        switch (operator) {
+            case "+":
+                return leftValue + rightValue;
+            case "-":
+                return leftValue - rightValue;
+            case "x":
+                return leftValue * rightValue;
+            case "/":
+                return leftValue / rightValue;
+            case "%":
+                return leftValue % rightValue;
+            case "^":
+                return (int) Math.pow(leftValue, rightValue);
+            default:
+                return null; // o lanza un error si el operador no es válido
+        }
+    }
+
+    // Método para parsear un valor
+    private Integer parseValue(String value) {
+        if (variableValues.containsKey(value)) {
+            return variableValues.get(value); // Devuelve el valor de la variable
+        } else {
+            try {
+                return Integer.parseInt(value); // Trata de convertir a entero
+            } catch (NumberFormatException e) {
+                return null; // Maneja el error
+            }
+        }
+    }
+
+    private Integer evaluateOperacion(SimpleParser.OperacionContext ctx) {
+        System.out.println("Evaluando operación: " + ctx.getText()); // Impresión para depuración
+        Integer result = evaluateTermino(ctx.termino());
+        System.out.println("Este es el termino" + result);
+
+        // Evaluación de operaciones recursivas
+        SimpleParser.OperacionRecContext operacionRecCtx = ctx.operacionRec();
+        while (operacionRecCtx != null) {
+            String operator = operacionRecCtx.OPTERCERNIVEL().getText();
+            Integer rightResult = evaluateTermino(operacionRecCtx.termino());
+            System.out.println("Evaluando: " + result + " " + operator + " " + rightResult); // Impresión para depuración
+            result = evaluateExpression(result.toString(), operator, rightResult.toString());
+            operacionRecCtx = operacionRecCtx.operacionRec();
+        }
+
+        return result;
+    }
+
+    private Integer evaluateTermino(SimpleParser.TerminoContext ctx) {
+        // Evaluar el factor primero
+        Integer leftResult = evaluateFactor(ctx.factor());
+        System.out.println("Adentro del evaluateTermino" + leftResult);
+
+        // Evaluar términos recursivos si existen
+        SimpleParser.TerminoRecContext terminoRecCtx = ctx.terminoRec();
+        while (terminoRecCtx != null) {
+            String operator = terminoRecCtx.OPSEGUNDONIVEL().getText(); // Obtener el operador
+            Integer rightResult = evaluateFactor(terminoRecCtx.factor()); // Evaluar el factor a la derecha
+
+            // Evaluar la expresión actual
+            leftResult = evaluateExpression(leftResult.toString(), operator, rightResult.toString());
+
+            // Avanzar al siguiente nivel recursivo, si lo hay
+            terminoRecCtx = terminoRecCtx.terminoRec();
+        }
+
+        return leftResult;
+    }
+
+    private Integer evaluateFactor(SimpleParser.FactorContext ctx) {
+        if (ctx.LPAREN() != null) {
+            // Evaluar la operación dentro de los paréntesis
+            return evaluateOperacion(ctx.operacion());
+        } else if (ctx.ID() != null) {
+            // Evaluar una variable
+            String varName = ctx.ID().getText();
+            return variableValues.get(varName);
+        } else if (ctx.NUMERO() != null) {
+            // Evaluar un número
+            return Integer.parseInt(ctx.NUMERO().getText());
+        } else if (ctx.OPPRIMERNIVEL() != null) {
+            // Evaluar una operación de potencia
+            Integer leftResult = evaluateFactor(ctx.factor(0)); // Lado izquierdo
+            Integer rightResult = evaluateFactor(ctx.factor(1)); // Lado derecho
+            String operator = ctx.OPPRIMERNIVEL().getText(); // Operador
+            return evaluateExpression(leftResult.toString(), operator, rightResult.toString());
+        }
+
+        return null;
+    }
+
+    @Override
+    public void enterOperacion(SimpleParser.OperacionContext ctx) {
+        System.out.println("Entrando a la operación: " + ctx.getText());
+
+        Integer result = evaluateOperacion(ctx);
+        System.out.println("Resultado de la operación: " + result);
+
+        if (result != null) {
+            // Guardar el resultado en la tabla de símbolos
+            if (currentVariableName != null && !currentVariableName.isEmpty()) {
+                String resultValue = result.toString();
+                if (currentModuleTable != null) {
+                    currentModuleTable.updateVariableValue(currentVariableName, resultValue);
+                    System.out
+                            .println("Valor de la variable " + currentVariableName + " actualizado a: " + resultValue);
+                } else {
+                    System.err.println("Error: No se encontró la tabla de símbolos.");
+                }
+            } else {
+                System.err.println("Error: No se pudo encontrar el nombre de la variable.");
+            }
+        } else {
+            System.err.println("Error: No se pudo calcular el resultado de la operación.");
+        }
     }
 
     // private String obtenerTipo(SimpleParser.FactorContext ctx){

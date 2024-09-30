@@ -1,9 +1,1 @@
-STRING x="Hola";
-STRING y="Chau";
-INT z = 12;
-INT num;
-num = 12;
-num = "";
-
-IF (x == "Hola" OR y == "Chu" AND "hoala" == "hola" OR x != y):
-ENDIF;
+INT aux = 10 + (5 - 3);
