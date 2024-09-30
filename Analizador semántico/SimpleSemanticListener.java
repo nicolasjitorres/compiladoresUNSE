@@ -232,8 +232,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
     @Override
     public void enterCondicion(SimpleParser.CondicionContext ctx) {
-
-        // Este método se llama al entrar en una condición
         if (currentModuleTable == null) {
             currentModuleTable = globalTable;
         }
@@ -244,7 +242,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         } catch (CondicionInvalidaException e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     private boolean evaluarCondicion(SimpleParser.CondicionContext ctx) throws CondicionInvalidaException {
