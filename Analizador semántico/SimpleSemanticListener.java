@@ -1,3 +1,6 @@
+import java.util.HashMap;
+import java.util.Map;
+
 public class SimpleSemanticListener extends SimpleParserBaseListener {
 
     private SymbolTable globalTable;
@@ -6,6 +9,7 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
     public SimpleSemanticListener() {
         globalTable = new SymbolTable();
         currentModuleTable = null; // Inicia sin un módulo activo
+
     }
 
     @Override
@@ -29,7 +33,17 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         } else if (context.BOOLEANO() != null) {
             variableValue = context.BOOLEANO().getText();
         } else if (context.operacion() != null) {
-            variableValue = context.operacion().getText();
+            if (context.TIPODATONUM().getText().equals("INT")) {
+                String operationResult = evaluateOperacion(context.operacion());
+                String[] partes = operationResult.split("\\.");
+                String parteEntera = partes[0];
+                variableValue = parteEntera;
+                System.out.println(variableValue);
+            } else {
+                String operationResult = evaluateOperacion(context.operacion());
+                variableValue = operationResult;
+                System.out.println(variableValue);
+            }
         } else if (context.variablePrima() != null) {
             variableValue = context.variablePrima().getText();
         }
@@ -121,115 +135,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         }
     }
 
-    // @Override
-    // public void enterCondicion(SimpleParser.CondicionContext ctx) {
-    // // Este método se llama al entrar en una condición
-    // System.out.println("Condicion detectada: " + ctx.getText());
-
-    // // Para verificar las variables en la condición
-    // for (SimpleParser.CondicionRecContext condicionRec : ctx.condicionRec()) {
-    // // Acceder a los términos lógicos en cada condicionRec
-    // if (condicionRec.terminoLogico().size() > 0) {
-    // for (SimpleParser.TerminoLogicoContext term : condicionRec.terminoLogico()) {
-    // if (term.operacion() != null) {
-    // String varName = term.operacion().getText();
-    // if (!globalTable.variableExists(varName) &&
-    // (currentModuleTable == null || !currentModuleTable.variableExists(varName)))
-    // {
-    // System.err.println("Error: La variable " + varName + " no esta definida en la
-    // condicion.");
-    // }
-    // System.out.println("Esta es una variable");
-    // } else {
-    // System.out.println("Este es un numero " + term.operacion().getText());
-    // }
-    // }
-    // }
-    // }
-    // }
-
-    // @Override
-    // public void enterCondicionRec(SimpleParser.CondicionRecContext ctx) {
-    // if (ctx.LPAREN() != null) {
-    // System.out.println("Condicion anidada detectada.");
-    // } else {
-    // // Procesar el término lógico y la comparación
-    // String terminoIzquierdo = ctx.terminoLogico(0).getText(); // Primer término
-    // lógico
-    // String operador = ctx.OPERADORCOMPARACION().getText(); // Operador de
-    // comparación
-    // String terminoDerecho = ctx.terminoLogico(1).getText(); // Segundo término
-    // lógico
-    // System.out.println("Termino logico y comparacion detectados: " +
-    // terminoIzquierdo + " " + operador + " "
-    // + terminoDerecho);
-    // }
-    // }
-
-    // @Override
-    // public void enterTerminoLogico(SimpleParser.TerminoLogicoContext ctx) {
-    // System.out.println("Término lógico detectado: " + ctx.getText());
-
-    // // Verificar si es un ID
-    // if (ctx.operacion() != null) {
-    // String varName = ctx.operacion().getText();
-    // if (!globalTable.variableExists(varName) &&
-    // (currentModuleTable == null || !currentModuleTable.variableExists(varName)))
-    // {
-    // System.err.println("Error: La variable " + varName + " no está definida en el
-    // término lógico.");
-    // }
-    // }
-    // // Verificar si es una operación
-    // else if (ctx.operacion() != null) {
-    // System.out.println("Este es un resultado de operación: " +
-    // ctx.operacion().getText());
-    // }
-    // // Verificar si es una cadena
-    // else if (ctx.CADENA() != null) {
-    // System.out.println("Este es una cadena: " + ctx.CADENA().getText());
-    // }
-    // }
-
-    // @Override
-    // public void enterModuloInicio(SimpleParser.ModuloInicioContext ctx) {
-    // String moduleName = ctx.ID().getText();
-    // currentModuleTable = new SymbolTable();
-
-    // // Definir el módulo sin valor de retorno aún
-    // globalTable.defineModule(moduleName, "", "");
-    // System.out.println("Se ha definido un nuevo modulo: " + moduleName);
-
-    // enterCuerpo(ctx.cuerpo());
-
-    // System.out.println(currentModuleTable.lookupVariableValue("aux1"));
-
-    // if (currentModuleTable.variableExists(ctx.nullOrNombre().getText())) {
-    // String returnValue =
-    // currentModuleTable.lookupVariableValue(ctx.nullOrNombre().getText());
-    // System.out.println("Valor de retorno del modulo: " + returnValue);
-    // } else {
-    // System.err.println("Error: La variable de retorno no esta definida.");
-    // }
-    // }
-
-    // @Override
-    // public void enterLlamada(SimpleParser.LlamadaContext ctx) {
-    // Verifica si el módulo llamado ha sido definido
-    // String moduleName = ctx.ID().getText(); // Obtener el nombre del módulo
-
-    // // Asegúrate de que globalTable esté correctamente inicializado antes de
-    // usarlo
-    // if (globalTable.lookupModule(moduleName) == null) {
-    // System.err.println("Error: El módulo " + moduleName + " no ha sido definido
-    // antes de la llamada.");
-    // } else {
-    // System.out.println("Llamada a módulo detectada: " + moduleName);
-    // }
-
-    // System.out.println(ctx.toString());
-    // }
-
     @Override
     public void enterCondicion(SimpleParser.CondicionContext ctx) {
         if (currentModuleTable == null) {
@@ -252,13 +157,13 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
             resultadoCondicion = primeraCondicion;
             for (int i = 1; i < ctx.condicionRec().size(); i++) {
                 boolean condicion = evaluarCondicionRec(ctx.condicionRec(i));
-                
+
                 if (ctx.OPERADORLOGICO(index).getText().matches("AND")) {
                     resultadoCondicion = resultadoCondicion && condicion;
                 } else {
                     resultadoCondicion = resultadoCondicion || condicion;
                 }
-                
+
                 index++;
             }
             return resultadoCondicion;
@@ -357,14 +262,133 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
     }
 
     private String obtenerValor(String nombre) {
-        // Verificar si es una variable en la tabla actual o global
         if (currentModuleTable != null && currentModuleTable.variableExists(nombre)) {
             return currentModuleTable.lookupVariableValue(nombre);
         } else if (globalTable.variableExists(nombre)) {
             return globalTable.lookupVariableValue(nombre);
         }
-        // Si no es una variable, asumir que es un valor numérico o cadena
-        return nombre; // Retorna el término como está (podría ser un número)
+        return nombre;
+    }
+
+    private String evaluateExpression(String left, String operator, String right) throws DivisioCeroException {
+        // Convierte los operandos a Float
+        Float leftValue = Float.parseFloat(left);
+        Float rightValue = Float.parseFloat(right);
+        String resultado;
+        // Valor muy pequeño
+        final float epsilon = 1e-7f;
+
+        if (leftValue == null || rightValue == null)
+            return null;
+
+        // Realiza la operación según el operador
+        switch (operator) {
+            case "+":
+                resultado = "" + (leftValue + rightValue);
+                break;
+            case "-":
+                resultado = "" + (leftValue - rightValue);
+                break;
+            case "*":
+                resultado = "" + (leftValue * rightValue);
+                break;
+            case "/":
+                if (Math.abs(rightValue) < epsilon) {
+                    throw new DivisioCeroException("Error: Division por cero. No se pudo ejecutar el programa correctamente...");
+                }
+                resultado = "" + (leftValue / rightValue);
+                break;
+            case "%":
+                resultado = "" + (leftValue % rightValue);
+                break;
+            case "^":
+                resultado = "" + (Math.pow(leftValue, rightValue));
+                break;
+            default:
+                return null;
+        }
+
+        return resultado;
+    }
+
+    private String evaluateOperacion(SimpleParser.OperacionContext ctx) {
+        System.out.println("Evaluando operacion: " + ctx.getText()); // Impresión para depuración
+        String result = evaluateTermino(ctx.termino());
+        
+        if (result == null) {
+            return null;
+        }
+
+        try {
+            SimpleParser.OperacionRecContext operacionRecCtx = ctx.operacionRec();
+            while (operacionRecCtx != null) {
+                String operator = operacionRecCtx.OPTERCERNIVEL().getText();
+                String rightResult = evaluateTermino(operacionRecCtx.termino());
+                System.out.println("Evaluando: " + result + " " + operator + " " + rightResult); // Impresión para
+                                                                                                 // depuración
+                result = evaluateExpression(result.toString(), operator, rightResult.toString());
+                operacionRecCtx = operacionRecCtx.operacionRec();
+            }
+        } catch (DivisioCeroException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+
+        return result;
+    }
+
+    private String evaluateTermino(SimpleParser.TerminoContext ctx) {
+        String leftResult = evaluateFactor(ctx.factor());
+
+        try {
+            SimpleParser.TerminoRecContext terminoRecCtx = ctx.terminoRec();
+            while (terminoRecCtx != null) {
+                String operator = terminoRecCtx.OPSEGUNDONIVEL().getText();
+                String rightResult = evaluateFactor(terminoRecCtx.factor());
+                leftResult = evaluateExpression(leftResult, operator, rightResult);
+                terminoRecCtx = terminoRecCtx.terminoRec();
+            }
+        } catch (DivisioCeroException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+        return leftResult;
+    }
+
+    private String evaluateFactor(SimpleParser.FactorContext ctx) {
+        if (ctx.LPAREN() != null) {
+            return evaluateOperacion(ctx.operacion());
+        }
+
+        if (ctx.ID() != null) {
+            String varName = ctx.ID().getText();
+            return obtenerValor(varName);
+        }
+
+        if (ctx.NUMERO() != null) {
+            return ctx.NUMERO().getText();
+        }
+
+        try {
+            if (ctx.OPPRIMERNIVEL() != null) {
+                String leftResult = evaluateFactor(ctx.factor(0)).toString();
+                String rightResult = evaluateFactor(ctx.factor(1)).toString();
+                String operator = ctx.OPPRIMERNIVEL().getText();
+                return evaluateExpression(leftResult, operator, rightResult);
+            }
+        } catch (DivisioCeroException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void enterOperacion(SimpleParser.OperacionContext ctx) {
+        System.out.println("Entrando a la operacion: " + ctx.getText());
+        String result = evaluateOperacion(ctx);
+        System.out.println("Resultado de la operacion: " + result);
     }
 
 }

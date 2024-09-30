@@ -10,7 +10,7 @@ COMMA: ',';
 
 // Operadores Aritméticos
 OPPRIMERNIVEL: '^' ;
-OPSEGUNDONIVEL: '%' | '×' | '/' ;
+OPSEGUNDONIVEL: '%' | '*' | '/' ;
 OPTERCERNIVEL: '+' | '-' ;
 
 // Operadores de Asignacion

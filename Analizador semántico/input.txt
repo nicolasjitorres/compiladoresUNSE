@@ -1,15 +1,3 @@
-STRING x="Hola";
-INT y=13;
-FLOAT z = 12.0;
+INT x = 1 + (2 / 0) ;
 
-IF ( x == "Hola"):
-ENDIF;
-
-IF ( x == "Hola" AND y > 1):
-ENDIF;
-
-IF ( x == "Hola" AND y > 1 AND (z < 9 OR z != 12.0)):
-ENDIF;
-
-IF ( x == "Hola" AND y > 1 AND (z < 9 OR z != 12.0 AND (y == 6))):
-ENDIF;
+PRINT(x);
