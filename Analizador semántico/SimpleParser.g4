@@ -61,4 +61,4 @@ condicion: condicionRec (OPERADORLOGICO condicionRec)*;
 condicionRec:
 	LPAREN condicion RPAREN
 	| terminoLogico OPERADORCOMPARACION terminoLogico;
-terminoLogico: operacion | CADENA;
+terminoLogico: ID | operacion | CADENA;

@@ -1,9 +1,15 @@
 STRING x="Hola";
-STRING y="Chau";
-INT z = 12;
-INT num;
-num = 12;
-num = "";
+INT y=13;
+FLOAT z = 12.0;
 
-IF (x == "Hola" OR y == "Chu" AND "hoala" == "hola" OR x != y):
+IF ( x == "Hola"):
+ENDIF;
+
+IF ( x == "Hola" AND y > 1):
+ENDIF;
+
+IF ( x == "Hola" AND y > 1 AND (z < 9 OR z != 12.0)):
+ENDIF;
+
+IF ( x == "Hola" AND y > 1 AND (z < 9 OR z != 12.0 AND (y == 6))):
 ENDIF;

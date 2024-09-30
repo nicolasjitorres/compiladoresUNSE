@@ -232,34 +232,58 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
     @Override
     public void enterCondicion(SimpleParser.CondicionContext ctx) {
+
         // Este método se llama al entrar en una condición
         if (currentModuleTable == null) {
             currentModuleTable = globalTable;
         }
 
-        // Crea una variable para guardar el resultado del analisis de la condicion
-        boolean resultadoCondicion = true;
-        int index = -1;
-        // Recorre una por una las condiciones para verificar el resultado
-        for (SimpleParser.CondicionRecContext term : ctx.condicionRec()) {
-            boolean condicion = evaluarCondicion(term);
-            if (!ctx.OPERADORLOGICO().isEmpty() && index != -1) {
+        try {
+            System.out.println("\nCondicion: " + ctx.getText());
+            System.out.println("Resultado de la condicion: " + evaluarCondicion(ctx));
+        } catch (CondicionInvalidaException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    private boolean evaluarCondicion(SimpleParser.CondicionContext ctx) throws CondicionInvalidaException {
+        boolean resultadoCondicion;
+        try {
+            int index = 0;
+            boolean primeraCondicion = evaluarCondicionRec(ctx.condicionRec(0));
+            resultadoCondicion = primeraCondicion;
+            for (int i = 1; i < ctx.condicionRec().size(); i++) {
+                boolean condicion = evaluarCondicionRec(ctx.condicionRec(i));
+                
                 if (ctx.OPERADORLOGICO(index).getText().matches("AND")) {
                     resultadoCondicion = resultadoCondicion && condicion;
                 } else {
                     resultadoCondicion = resultadoCondicion || condicion;
                 }
-            } else {
-                resultadoCondicion = resultadoCondicion && condicion;
+                
+                index++;
             }
-            index++;
+            return resultadoCondicion;
+        } catch (TipoIncompatibleException e) {
+            throw new CondicionInvalidaException(
+                    "La condicion no puede ser evaluada porque existen dos tipos de datos incompatibles.");
+        } catch (OperadorInvalidoException e) {
+            throw new CondicionInvalidaException(
+                    e.getMessage());
         }
-
-        // Evaluar la condición
-        System.out.println("\nResultado de la condicion: " + resultadoCondicion);
     }
 
-    private boolean evaluarCondicion(SimpleParser.CondicionRecContext ctx) {
+    private boolean evaluarCondicionRec(SimpleParser.CondicionRecContext ctx)
+            throws TipoIncompatibleException, OperadorInvalidoException {
+        if (ctx.LPAREN() != null) {
+            try {
+                return evaluarCondicion(ctx.condicion());
+            } catch (CondicionInvalidaException e) {
+                throw new TipoIncompatibleException("Error, tipos incompatibles.");
+            }
+        }
+
         // Obtener los términos lógicos
         String terminoIzquierdo = ctx.terminoLogico(0).getText();
         String operador = ctx.OPERADORCOMPARACION().getText();
@@ -270,22 +294,38 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         String valorDerecho = obtenerValor(terminoDerecho);
 
         // Obtener los tipos
-        String tipoIzquierdo = "";
-        String tipoDerecho = "";
+        String tipoIzquierdo = obtenerTipo(ctx.terminoLogico(0));
+        String tipoDerecho = obtenerTipo(ctx.terminoLogico(1));
 
-        if (ctx.terminoLogico(0).CADENA() != null) {
-            tipoIzquierdo = "STRING";
+        if (tipoIzquierdo.equals("INT") || tipoIzquierdo.equals("FLOAT")) {
+            tipoIzquierdo = "NUM";
         }
-        if (ctx.terminoLogico(1).CADENA() != null) {
-            tipoIzquierdo = "STRING";
+        if (tipoDerecho.equals("INT") || tipoDerecho.equals("FLOAT")) {
+            tipoDerecho = "NUM";
         }
 
-        // Comparar según el operador
+        if (!tipoIzquierdo.equals(tipoDerecho)) {
+            System.out.println("ERROR: Tipo izquierdo: " + tipoIzquierdo + " y tipo derecho: " + tipoDerecho);
+            throw new TipoIncompatibleException("Error, tipos incompatibles.");
+        }
+
+        if (tipoIzquierdo.equals("STRING") || tipoIzquierdo.equals("BOOLEAN")) {
+            switch (operador) {
+                case "==":
+                    return valorIzquierdo.equals(valorDerecho);
+                case "!=":
+                    return !valorIzquierdo.equals(valorDerecho);
+                default:
+                    throw new OperadorInvalidoException(
+                            "No esta permitida la comparacion: " + operador + " entre tipos de dato " + tipoIzquierdo);
+            }
+        }
+
         switch (operador) {
             case "==":
-                return valorIzquierdo.equals(valorDerecho);
+                return Double.parseDouble(valorIzquierdo) == Double.parseDouble(valorDerecho);
             case "!=":
-                return !valorIzquierdo.equals(valorDerecho);
+                return Double.parseDouble(valorIzquierdo) != Double.parseDouble(valorDerecho);
             case "<":
                 return Double.parseDouble(valorIzquierdo) < Double.parseDouble(valorDerecho);
             case "<=":
@@ -295,9 +335,28 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
             case ">=":
                 return Double.parseDouble(valorIzquierdo) >= Double.parseDouble(valorDerecho);
             default:
-                System.err.println("Error: Operador de comparación no soportado: " + operador);
                 return false;
         }
+    }
+
+    private String obtenerTipo(SimpleParser.TerminoLogicoContext ctx) {
+
+        if (currentModuleTable == null) {
+            currentModuleTable = globalTable;
+        }
+
+        String type = "";
+
+        if (ctx.CADENA() != null) {
+            type = "STRING";
+        }
+        if (ctx.ID() != null) {
+            type = currentModuleTable.lookupVariable(ctx.ID().getText()).getType().toString();
+        }
+        if (ctx.operacion() != null) {
+            type = "INT";
+        }
+        return type;
     }
 
     private String obtenerValor(String nombre) {
@@ -310,20 +369,5 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         // Si no es una variable, asumir que es un valor numérico o cadena
         return nombre; // Retorna el término como está (podría ser un número)
     }
-
-    private boolean isComparisonValid(String leftType, String rightType) {
-        // Sólo permitimos comparaciones entre tipos compatibles
-        if (leftType.equals(rightType)) {
-            return true; // Si ambos lados tienen el mismo tipo
-        }
-
-        // Podríamos agregar más lógica para casos especiales
-        System.err.println("Error: No se puede comparar " + leftType + " con " + rightType);
-        return false;
-    }
-
-    // private String obtenerTipo(SimpleParser.FactorContext ctx){
-
-    // }
 
 }

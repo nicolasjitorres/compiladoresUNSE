@@ -54,7 +54,7 @@ CADENA: '"' ( ~["\\] | '\\' . )* '"' ;
 ID: [a-zA-Z][a-zA-Z0-9]* ;
 
 // Número (incluye floats con coma)
-NUMERO:  [+-]?([0-9]+)([,][0-9]+)? ;
+NUMERO:  [+-]?([0-9]+)([.][0-9]+)? ;
 
 // Espacios en blanco y nuevas líneas
 WS: [ \t\r\n] -> skip ;
