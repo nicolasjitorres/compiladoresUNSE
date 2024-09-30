@@ -1,14 +1,18 @@
-MODULE myModule() : RETURN NULL;
-IF (x == 5) : PRINT("Hello");
 STRING palabra = "algo";
 palabra = "hola";
 STRING palabra;
 
-STRING conjunto = "enteros";
 INT primero;
 INT segundo = 10;
+
 FLOAT flotante;
 FLOAT pi = 3,14;
+
 BOOLEAN verdadero;
 BOOLEAN falso = TRUE;
+
+verdadero = "hola";
+flotante = TRUE;
+primero = 3,14;
+
 ENDIF;

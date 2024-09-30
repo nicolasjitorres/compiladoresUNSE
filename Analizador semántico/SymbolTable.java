@@ -41,4 +41,20 @@ class SymbolTable {
             System.err.println("Error: La variable " + name + " no está definida.");
         }
     }
+
+    public boolean isValueTypeCompatible(String existingType, String value) {
+        switch (existingType.toUpperCase()) {
+            case "STRING":
+                return value.startsWith("\"") && value.endsWith("\"");
+            case "BOOLEAN":
+                return value.matches("TRUE | FALSE");
+            case "INT":
+                return value.matches("[+-]?([0-9]+)");
+            case "FLOAT":
+                return value.matches("[+-]?([0-9]+)([,][0-9]+)?"); 
+            default:
+                return false;
+        }
+    }
+
 }

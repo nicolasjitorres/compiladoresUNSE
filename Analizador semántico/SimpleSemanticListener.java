@@ -74,20 +74,22 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
         // Verificar si la variable ya existe en la tabla de símbolos
         if (currentModuleTable.variableExists(variableName)) {
-            if (variableType == "") {
-                currentModuleTable.updateVariableValue(variableName, variableValue);
-            } else {
+            Variable variableExistente = currentModuleTable.lookupVariable(variableName);
+            if (variableType != "") {
                 System.err.println("\nError: La variable " + variableName + " ya esta definida.");
                 return;
             }
+
+            if (!currentModuleTable.isValueTypeCompatible(variableExistente.getType(), variableValue)) {
+                System.err
+                        .println("\nError: La variable " + variableName + " es de tipo " + variableExistente.getType());
+                return;
+            }
+            currentModuleTable.updateVariableValue(variableName, variableValue.replaceAll("\"", ""));
+
         } else {
             // Definir la variable en la tabla de símbolos actual
-            currentModuleTable.defineVariable(variableName, variableType, variableValue);
-        }
-
-        // Verificación opcional para el nombre de la variable
-        if (!variableName.matches("[a-zA-Z][a-zA-Z0-9]*")) {
-            System.err.println("Error: El nombre de la variable " + variableName + " no es válido.");
+            currentModuleTable.defineVariable(variableName, variableType, variableValue.replaceAll("\"", ""));
         }
 
         if (variableType != "") {
@@ -98,45 +100,72 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         }
 
         if (variableValue != "") {
-            System.out.println("La variable tiene como valor: " + variableValue);
+            System.out.println("La variable tiene como valor: " + variableValue.replaceAll("\"", ""));
         } else {
             System.out.println("La variable no tiene valor asignado.");
         }
 
     }
 
-    // @Override
-    // public void enterVariable(SimpleParser.VariableContext ctx) {
-    // String variableName = ctx.ID().getText();
-    // String variableType = "";
-    // System.out.println(ctx.tipo());
-    // System.out.println(ctx.getText());
-    // System.out.println(ctx.toString());
-    // if (ctx.tipo() == null) {
-    // } else {
-    // variableType = ctx.tipo().getText();
-    // }
+    @Override
+    public void enterCondicion(SimpleParser.CondicionContext ctx) {
+        // Este método se llama al entrar en una condición
+        System.out.println("Condicion detectada: " + ctx.getText());
 
-    // // Mostrar mensaje en consola
-    // System.out.println("Se ha definido una variable: " + variableName + " de tipo
-    // " + variableType);
+        // Para verificar las variables en la condición
+        for (SimpleParser.CondicionRecContext condicionRec : ctx.condicionRec()) {
+            // Acceder a los términos lógicos en cada condicionRec
+            if (condicionRec.terminoLogico().size() > 0) {
+                for (SimpleParser.TerminoLogicoContext term : condicionRec.terminoLogico()) {
+                    if (term.ID() != null) {
+                        String varName = term.ID().getText();
+                        if (!globalTable.variableExists(varName) &&
+                                (currentModuleTable == null || !currentModuleTable.variableExists(varName))) {
+                            System.err.println("Error: La variable " + varName + " no esta definida en la condicion.");
+                        }
+                        System.out.println("Esta es una variable");
+                    } else {
+                        System.out.println("Este es un numero " + term.operacion().getText());
+                    }
+                }
+            }
+        }
+    }
 
-    // // Verificar si currentModuleTable está inicializada
-    // if (currentModuleTable == null) {
-    // currentModuleTable = globalTable; // Usar la tabla global si no hay un módulo
-    // activo
-    // }
+    @Override
+    public void enterCondicionRec(SimpleParser.CondicionRecContext ctx) {
+        if (ctx.LPAREN() != null) {
+            System.out.println("Condicion anidada detectada.");
+        } else {
+            // Procesar el término lógico y la comparación
+            String terminoIzquierdo = ctx.terminoLogico(0).getText(); // Primer término lógico
+            String operador = ctx.OPERADORCOMPARACION().getText(); // Operador de comparación
+            String terminoDerecho = ctx.terminoLogico(1).getText(); // Segundo término lógico
+            System.out.println("Termino logico y comparacion detectados: " + terminoIzquierdo + " " + operador + " "
+                    + terminoDerecho);
+        }
+    }
 
-    // // Definir la variable en la tabla de símbolos actual
-    // currentModuleTable.defineVariable(variableName, variableType);
+    @Override
+    public void enterTerminoLogico(SimpleParser.TerminoLogicoContext ctx) {
+        System.out.println("Término lógico detectado: " + ctx.getText());
 
-    // // Verificación opcional para el nombre de la variable
-    // if (!variableName.matches("[a-zA-Z][a-zA-Z0-9]*")) {
-    // System.err.println("Error: El nombre de la variable " + variableName + " no
-    // es válido.");
-    // }
-    // }
+        // Verificar si es un ID
+        if (ctx.ID() != null) {
+            String varName = ctx.ID().getText();
+            if (!globalTable.variableExists(varName) &&
+                    (currentModuleTable == null || !currentModuleTable.variableExists(varName))) {
+                System.err.println("Error: La variable " + varName + " no está definida en el término lógico.");
+            }
+        }
+        // Verificar si es una operación
+        else if (ctx.operacion() != null) {
+            System.out.println("Este es un resultado de operación: " + ctx.operacion().getText());
+        }
+        // Verificar si es una cadena
+        else if (ctx.CADENA() != null) {
+            System.out.println("Este es una cadena: " + ctx.CADENA().getText());
+        }
+    }
 
-    // Otros métodos, como la validación de números y operaciones, permanecen
-    // iguales...
 }
