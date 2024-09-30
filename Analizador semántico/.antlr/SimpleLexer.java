@@ -1,4 +1,4 @@
-// Generated from c:/Users/Nicolás Torres/Desktop/UNSE/Analizador lexico/Analizador semántico/SimpleLexer.g4 by ANTLR 4.13.1
+// Generated from c:/Users/Usuario/Desktop/Compiladores/compiladoresUNSE/Analizador semántico/SimpleLexer.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;

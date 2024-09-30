@@ -1,4 +1,4 @@
-// Generated from c:/Users/Nicolás Torres/Desktop/UNSE/Analizador lexico/Analizador semántico/SimpleParser.g4 by ANTLR 4.13.1
+// Generated from c:/Users/Usuario/Desktop/Compiladores/compiladoresUNSE/Analizador semántico/SimpleParser.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;

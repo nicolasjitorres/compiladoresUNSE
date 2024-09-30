@@ -49,7 +49,7 @@ llamada: (tipo ID OPERADORASIGNACION)? CALL MODULE ID LPAREN argumentoLl? RPAREN
 argumentoLl: argumento (COMMA argumentoLl)?;
 argumento: ID | operacion | CADENA;
 
-condicion: condicionRec (OPERADORLOGICO condicion)?;
-condicionRec: terminoLogico OPERADORCOMPARACION terminoLogico;
-terminoLogico: operacion | LPAREN condicion RPAREN | CADENA;
+condicion: condicionRec (OPERADORLOGICO condicionRec)*; // Permite múltiples condiciones unidas por AND/OR
+condicionRec: LPAREN condicion RPAREN | terminoLogico OPERADORCOMPARACION terminoLogico; // Permite la comparación y también condiciones anidadas
+terminoLogico: operacion | CADENA; // Añade CADENA si es necesario
 
