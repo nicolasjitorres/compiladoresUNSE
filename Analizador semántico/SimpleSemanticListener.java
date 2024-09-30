@@ -1,5 +1,3 @@
-import org.antlr.v4.runtime.tree.TerminalNode;
-
 public class SimpleSemanticListener extends SimpleParserBaseListener {
 
     private SymbolTable globalTable;
@@ -8,36 +6,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
     public SimpleSemanticListener() {
         globalTable = new SymbolTable();
         currentModuleTable = null; // Inicia sin un módulo activo
-    }
-
-    @Override
-    public void enterModuloInicio(SimpleParser.ModuloInicioContext ctx) {
-        String moduleName = ctx.ID().getText();
-        globalTable.defineModule(moduleName, ctx.nullOrNombre().getText());
-        currentModuleTable = new SymbolTable(); // Crear nueva tabla de símbolos local para el módulo
-        System.out.println("Se ha definido un nuevo modulo: " + moduleName);
-    }
-
-    @Override
-    public void exitModuloInicio(SimpleParser.ModuloInicioContext ctx) {
-        currentModuleTable = null; // Al salir del módulo, no hay módulo activo
-    }
-
-    @Override
-    public void enterLlamada(SimpleParser.LlamadaContext ctx) {
-        // Verifica si el módulo llamado ha sido definido
-        // String moduleName = ctx.ID().getText(); // Obtener el nombre del módulo
-
-        // // Asegúrate de que globalTable esté correctamente inicializado antes de
-        // usarlo
-        // if (globalTable.lookupModule(moduleName) == null) {
-        // System.err.println("Error: El módulo " + moduleName + " no ha sido definido
-        // antes de la llamada.");
-        // } else {
-        // System.out.println("Llamada a módulo detectada: " + moduleName);
-        // }
-
-        System.out.println(ctx.toString());
     }
 
     @Override
@@ -106,6 +74,7 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         }
 
     }
+
     @Override
     public void enterImprimir(SimpleParser.ImprimirContext ctx) {
         System.out.print("Iniciando instruccion de impresion: ");
@@ -152,66 +121,104 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         }
     }
 
+    // @Override
+    // public void enterCondicion(SimpleParser.CondicionContext ctx) {
+    //     // Este método se llama al entrar en una condición
+    //     System.out.println("Condicion detectada: " + ctx.getText());
 
-    @Override
-    public void enterCondicion(SimpleParser.CondicionContext ctx) {
-        // Este método se llama al entrar en una condición
-        System.out.println("Condicion detectada: " + ctx.getText());
+    //     // Para verificar las variables en la condición
+    //     for (SimpleParser.CondicionRecContext condicionRec : ctx.condicionRec()) {
+    //         // Acceder a los términos lógicos en cada condicionRec
+    //         if (condicionRec.terminoLogico().size() > 0) {
+    //             for (SimpleParser.TerminoLogicoContext term : condicionRec.terminoLogico()) {
+    //                 if (term.operacion() != null) {
+    //                     String varName = term.operacion().getText();
+    //                     if (!globalTable.variableExists(varName) &&
+    //                             (currentModuleTable == null || !currentModuleTable.variableExists(varName))) {
+    //                         System.err.println("Error: La variable " + varName + " no esta definida en la condicion.");
+    //                     }
+    //                     System.out.println("Esta es una variable");
+    //                 } else {
+    //                     System.out.println("Este es un numero " + term.operacion().getText());
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-        // Para verificar las variables en la condición
-        for (SimpleParser.CondicionRecContext condicionRec : ctx.condicionRec()) {
-            // Acceder a los términos lógicos en cada condicionRec
-            if (condicionRec.terminoLogico().size() > 0) {
-                for (SimpleParser.TerminoLogicoContext term : condicionRec.terminoLogico()) {
-                    if (term.ID() != null) {
-                        String varName = term.ID().getText();
-                        if (!globalTable.variableExists(varName) &&
-                                (currentModuleTable == null || !currentModuleTable.variableExists(varName))) {
-                            System.err.println("Error: La variable " + varName + " no esta definida en la condicion.");
-                        }
-                        System.out.println("Esta es una variable");
-                    } else {
-                        System.out.println("Este es un numero " + term.operacion().getText());
-                    }
-                }
-            }
-        }
-    }
+    // @Override
+    // public void enterCondicionRec(SimpleParser.CondicionRecContext ctx) {
+    //     if (ctx.LPAREN() != null) {
+    //         System.out.println("Condicion anidada detectada.");
+    //     } else {
+    //         // Procesar el término lógico y la comparación
+    //         String terminoIzquierdo = ctx.terminoLogico(0).getText(); // Primer término lógico
+    //         String operador = ctx.OPERADORCOMPARACION().getText(); // Operador de comparación
+    //         String terminoDerecho = ctx.terminoLogico(1).getText(); // Segundo término lógico
+    //         System.out.println("Termino logico y comparacion detectados: " + terminoIzquierdo + " " + operador + " "
+    //                 + terminoDerecho);
+    //     }
+    // }
 
-    @Override
-    public void enterCondicionRec(SimpleParser.CondicionRecContext ctx) {
-        if (ctx.LPAREN() != null) {
-            System.out.println("Condicion anidada detectada.");
-        } else {
-            // Procesar el término lógico y la comparación
-            String terminoIzquierdo = ctx.terminoLogico(0).getText(); // Primer término lógico
-            String operador = ctx.OPERADORCOMPARACION().getText(); // Operador de comparación
-            String terminoDerecho = ctx.terminoLogico(1).getText(); // Segundo término lógico
-            System.out.println("Termino logico y comparacion detectados: " + terminoIzquierdo + " " + operador + " "
-                    + terminoDerecho);
-        }
-    }
+    // @Override
+    // public void enterTerminoLogico(SimpleParser.TerminoLogicoContext ctx) {
+    //     System.out.println("Término lógico detectado: " + ctx.getText());
 
-    @Override
-    public void enterTerminoLogico(SimpleParser.TerminoLogicoContext ctx) {
-        System.out.println("Término lógico detectado: " + ctx.getText());
+    //     // Verificar si es un ID
+    //     if (ctx.operacion() != null) {
+    //         String varName = ctx.operacion().getText();
+    //         if (!globalTable.variableExists(varName) &&
+    //                 (currentModuleTable == null || !currentModuleTable.variableExists(varName))) {
+    //             System.err.println("Error: La variable " + varName + " no está definida en el término lógico.");
+    //         }
+    //     }
+    //     // Verificar si es una operación
+    //     else if (ctx.operacion() != null) {
+    //         System.out.println("Este es un resultado de operación: " + ctx.operacion().getText());
+    //     }
+    //     // Verificar si es una cadena
+    //     else if (ctx.CADENA() != null) {
+    //         System.out.println("Este es una cadena: " + ctx.CADENA().getText());
+    //     }
+    // }
 
-        // Verificar si es un ID
-        if (ctx.ID() != null) {
-            String varName = ctx.ID().getText();
-            if (!globalTable.variableExists(varName) &&
-                    (currentModuleTable == null || !currentModuleTable.variableExists(varName))) {
-                System.err.println("Error: La variable " + varName + " no está definida en el término lógico.");
-            }
-        }
-        // Verificar si es una operación
-        else if (ctx.operacion() != null) {
-            System.out.println("Este es un resultado de operación: " + ctx.operacion().getText());
-        }
-        // Verificar si es una cadena
-        else if (ctx.CADENA() != null) {
-            System.out.println("Este es una cadena: " + ctx.CADENA().getText());
-        }
-    }
+    // @Override
+    // public void enterModuloInicio(SimpleParser.ModuloInicioContext ctx) {
+    //     String moduleName = ctx.ID().getText();
+    //     currentModuleTable = new SymbolTable();
+
+    //     // Definir el módulo sin valor de retorno aún
+    //     globalTable.defineModule(moduleName, "", "");
+    //     System.out.println("Se ha definido un nuevo modulo: " + moduleName);
+
+    //     enterCuerpo(ctx.cuerpo());
+
+    //     System.out.println(currentModuleTable.lookupVariableValue("aux1"));
+
+    //     if (currentModuleTable.variableExists(ctx.nullOrNombre().getText())) {
+    //         String returnValue = currentModuleTable.lookupVariableValue(ctx.nullOrNombre().getText());
+    //         System.out.println("Valor de retorno del modulo: " + returnValue);
+    //     } else {
+    //         System.err.println("Error: La variable de retorno no esta definida.");
+    //     }
+    // }
+
+
+    // @Override
+    // public void enterLlamada(SimpleParser.LlamadaContext ctx) {
+    //     Verifica si el módulo llamado ha sido definido
+    //     String moduleName = ctx.ID().getText(); // Obtener el nombre del módulo
+
+    //     // Asegúrate de que globalTable esté correctamente inicializado antes de
+    //     usarlo
+    //     if (globalTable.lookupModule(moduleName) == null) {
+    //     System.err.println("Error: El módulo " + moduleName + " no ha sido definido
+    //     antes de la llamada.");
+    //     } else {
+    //     System.out.println("Llamada a módulo detectada: " + moduleName);
+    //     }
+
+    //     System.out.println(ctx.toString());
+    // }
 
 }

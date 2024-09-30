@@ -3,7 +3,7 @@ import java.util.Map;
 
 class SymbolTable {
     private Map<String, Variable> variables; // Nombre de variable y objeto Variable
-    private Map<String, String> modules; // Nombre de módulos y tipo de retorno
+    private Map<String, Module> modules; // Nombre de módulos y tipo de retorno
 
     public SymbolTable() {
         variables = new HashMap<>();
@@ -15,15 +15,16 @@ class SymbolTable {
         variables.put(name, variable);
     }
 
-    public void defineModule(String name, String returnType) {
-        modules.put(name, returnType);
+    public void defineModule(String name, String typeReturn, String valueReturn) {
+        Module module = new Module(name, typeReturn, valueReturn);
+        modules.put(name, module);
     }
 
     public Variable lookupVariable(String name) {
         return variables.get(name);
     }
 
-    public String lookupModule(String name) {
+    public Module lookupModule(String name) {
         return modules.get(name);
     }
 
@@ -38,7 +39,7 @@ class SymbolTable {
             Variable variable = lookupVariable(name);
             variable.setValue(newValue);
         } else {
-            System.err.println("Error: La variable " + name + " no está definida.");
+            System.err.println("Error: La variable " + name + " no esta definida.");
         }
     }
 
@@ -62,7 +63,7 @@ class SymbolTable {
         if (variable != null) {
             return variable.getValue(); // Devolver solo el valor de la variable
         } else {
-            System.err.println("Error: La variable " + name + " no está definida.");
+            System.err.println("Error: La variable " + name + " no esta definida.");
             return null; // O un valor por defecto
         }
     }
