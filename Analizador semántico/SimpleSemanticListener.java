@@ -106,6 +106,52 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         }
 
     }
+    @Override
+    public void enterImprimir(SimpleParser.ImprimirContext ctx) {
+        System.out.print("Iniciando instruccion de impresion: ");
+        if (ctx.imprimirRec() != null) {
+            procesarImprimirRec(ctx.imprimirRec(), true); // 'true' para el primer elemento
+        }
+        System.out.println(); // Salto de línea al final
+    }
+
+    public void procesarImprimirRec(SimpleParser.ImprimirRecContext ctx, boolean isFirst) {
+        // Si no es el primer elemento, agregar coma
+        if (!isFirst) {
+            System.out.print(", ");
+        }
+
+        if (ctx.CADENA() != null) {
+            // Procesar cadenas
+            String cadena = ctx.CADENA().getText();
+            System.out.print(cadena.substring(1, cadena.length() - 1)); // Quitar comillas
+        } else if (ctx.ID() != null) {
+            // Procesar variables
+            String variableName = ctx.ID().getText();
+            if (currentModuleTable != null && currentModuleTable.variableExists(variableName)) {
+                String variableValue = currentModuleTable.lookupVariableValue(variableName);
+                System.out.print(variableValue);
+            } else if (globalTable.variableExists(variableName)) {
+                String variableValue = globalTable.lookupVariableValue(variableName);
+                System.out.print(variableValue);
+            } else {
+                System.err.println("Error: La variable " + variableName + " no ha sido definida.");
+            }
+        }
+
+        // Si hay más elementos a imprimir
+        if (ctx.imprimirCont() != null) {
+            procesarImprimirCont(ctx.imprimirCont());
+        }
+    }
+
+    public void procesarImprimirCont(SimpleParser.ImprimirContContext ctx) {
+        // Procesar la siguiente parte del PRINT
+        if (ctx.imprimirRec() != null) {
+            procesarImprimirRec(ctx.imprimirRec(), false); // 'false' para los siguientes elementos
+        }
+    }
+
 
     @Override
     public void enterCondicion(SimpleParser.CondicionContext ctx) {

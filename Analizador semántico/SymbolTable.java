@@ -57,4 +57,13 @@ class SymbolTable {
         }
     }
 
+    public String lookupVariableValue(String name) {
+        Variable variable = lookupVariable(name);
+        if (variable != null) {
+            return variable.getValue(); // Devolver solo el valor de la variable
+        } else {
+            System.err.println("Error: La variable " + name + " no está definida.");
+            return null; // O un valor por defecto
+        }
+    }
 }

@@ -1920,7 +1920,7 @@ public class SimpleParser extends Parser {
 				operacion();
 				}
 				break;
-			case 2:
+			case CADENA:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(256);
@@ -1934,6 +1934,8 @@ public class SimpleParser extends Parser {
 				match(ID);
 				}
 				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {

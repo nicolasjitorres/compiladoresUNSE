@@ -1,4 +1,5 @@
 STRING palabra = "algo";
+<<<<<<< HEAD
 palabra = "hola";
 STRING palabra;
 
@@ -16,3 +17,6 @@ flotante = TRUE;
 primero = 3,14;
 
 ENDIF;
+=======
+PRINT("Hola", palabra, "mundo");
+>>>>>>> 870c67e7c50f978740d7190be369e9cd1c7bcb8f
