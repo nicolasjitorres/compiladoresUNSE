@@ -156,22 +156,23 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
     @Override
     public void enterCondicion(SimpleParser.CondicionContext ctx) {
         // Este método se llama al entrar en una condición
-        System.out.println("Condicion detectada: " + ctx.getText());
-
+        if (currentModuleTable==null) {
+            currentModuleTable=globalTable;
+        }
         // Para verificar las variables en la condición
         for (SimpleParser.CondicionRecContext condicionRec : ctx.condicionRec()) {
             // Acceder a los términos lógicos en cada condicionRec
             if (condicionRec.terminoLogico().size() > 0) {
                 for (SimpleParser.TerminoLogicoContext term : condicionRec.terminoLogico()) {
-                    if (term.ID() != null) {
-                        String varName = term.ID().getText();
-                        if (!globalTable.variableExists(varName) &&
-                                (currentModuleTable == null || !currentModuleTable.variableExists(varName))) {
-                            System.err.println("Error: La variable " + varName + " no esta definida en la condicion.");
+                    if (term.operacion().termino().factor().ID() != null) {
+                        String varName = term.operacion().termino().factor().ID().getText();
+                        if (!currentModuleTable.variableExists(varName)) {
+                            System.err.println("Error: La variable " + varName + " no esta definida.");
+                        }else{
+                            System.out.println("Esta es una variable: "+varName);
                         }
-                        System.out.println("Esta es una variable");
                     } else {
-                        System.out.println("Este es un numero " + term.operacion().getText());
+                        System.out.println("Este es un numero: " + term.operacion().getText());
                     }
                 }
             }
@@ -187,31 +188,10 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
             String terminoIzquierdo = ctx.terminoLogico(0).getText(); // Primer término lógico
             String operador = ctx.OPERADORCOMPARACION().getText(); // Operador de comparación
             String terminoDerecho = ctx.terminoLogico(1).getText(); // Segundo término lógico
-            System.out.println("Termino logico y comparacion detectados: " + terminoIzquierdo + " " + operador + " "
-                    + terminoDerecho);
+            System.out.println("\nTermino logico y comparacion detectados: " + "\nTermino Izquierdo: "+terminoIzquierdo + "\nOperador: " + operador + "\nTermino Derecho: "+ terminoDerecho);
         }
-    }
 
-    @Override
-    public void enterTerminoLogico(SimpleParser.TerminoLogicoContext ctx) {
-        System.out.println("Término lógico detectado: " + ctx.getText());
 
-        // Verificar si es un ID
-        if (ctx.ID() != null) {
-            String varName = ctx.ID().getText();
-            if (!globalTable.variableExists(varName) &&
-                    (currentModuleTable == null || !currentModuleTable.variableExists(varName))) {
-                System.err.println("Error: La variable " + varName + " no está definida en el término lógico.");
-            }
-        }
-        // Verificar si es una operación
-        else if (ctx.operacion() != null) {
-            System.out.println("Este es un resultado de operación: " + ctx.operacion().getText());
-        }
-        // Verificar si es una cadena
-        else if (ctx.CADENA() != null) {
-            System.out.println("Este es una cadena: " + ctx.CADENA().getText());
-        }
     }
 
 }

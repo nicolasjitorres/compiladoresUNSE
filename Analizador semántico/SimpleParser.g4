@@ -66,5 +66,4 @@ condicionRec:
 	| terminoLogico OPERADORCOMPARACION terminoLogico;
 terminoLogico:
 	operacion
-	| CADENA
-    | ID;
+	| CADENA;

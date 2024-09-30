@@ -1,22 +1,5 @@
-STRING palabra = "algo";
-<<<<<<< HEAD
-palabra = "hola";
-STRING palabra;
+INT x=11;
+INT y=19;
 
-INT primero;
-INT segundo = 10;
-
-FLOAT flotante;
-FLOAT pi = 3,14;
-
-BOOLEAN verdadero;
-BOOLEAN falso = TRUE;
-
-verdadero = "hola";
-flotante = TRUE;
-primero = 3,14;
-
+IF (x > 10 AND y <= 20):
 ENDIF;
-=======
-PRINT("Hola", palabra, "mundo");
->>>>>>> 870c67e7c50f978740d7190be369e9cd1c7bcb8f
