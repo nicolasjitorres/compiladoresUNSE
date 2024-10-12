@@ -87,7 +87,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         }
 
         if (!tipoIzquierdo.equals(tipoDerecho)) {
-            System.out.println("ERROR: Tipo izquierdo: " + tipoIzquierdo + " y tipo derecho: " + tipoDerecho);
             throw new TipoIncompatibleException("Error, tipos incompatibles.");
         }
 
@@ -198,7 +197,7 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
                 terminoRecCtx = terminoRecCtx.terminoRec();
             }
         } catch (DivisioCeroException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             System.exit(0);
         }
         return leftResult;
@@ -226,7 +225,7 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
                 return evaluarExpresion(leftResult, operator, rightResult);
             }
         } catch (DivisioCeroException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             System.exit(0);
         }
 
@@ -303,19 +302,18 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
                 System.out.print(variableValue);
             } else {
                 System.err.println("Error: La variable " + variableName + " no ha sido definida.");
+                System.exit(0);
             }
         }
 
-        // Si hay más elementos a imprimir
         if (ctx.imprimirCont() != null) {
             procesarImprimirCont(ctx.imprimirCont());
         }
     }
 
     public void procesarImprimirCont(SimpleParser.ImprimirContContext ctx) {
-        // Procesar la siguiente parte del PRINT
         if (ctx.imprimirRec() != null) {
-            procesarImprimirRec(ctx.imprimirRec(), false); // 'false' para los siguientes elementos
+            procesarImprimirRec(ctx.imprimirRec(), false);
         }
     }
 
@@ -464,8 +462,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
         String variableType = devolverTipoVar(context);
         String variableValue = "";
 
-        System.out.println("Definiendo variable:");
-
         if (currentModuleTable == null) {
             currentModuleTable = globalTable;
         }
@@ -506,7 +502,6 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
             currentModuleTable.updateVariableValue(variableName, variableValue);
 
         } else {
-            System.out.println("Nombre: "+ variableName + ", tipo: " + variableType + ", valor: " + variableValue);
             currentModuleTable.defineVariable(variableName, variableType, variableValue);
         }
 
@@ -546,17 +541,11 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
 
     public void ejecutarLlamada(SimpleParser.LlamadaContext ctx) {
         String moduleName = "";
-
-        System.out.println("Ejecutando llamada al modulo:");
-
         if (ctx.tipo() != null) {
             moduleName = ctx.ID(1).getText();
         } else {
             moduleName = ctx.ID(0).getText();
         }
-
-        System.out.println("Nombre del modulo llamado: " + moduleName);
-
         if (!globalTable.moduleExists(moduleName)) {
             System.err.println("ERROR: El modulo " + moduleName + " no esta definido.");
             System.exit(0);
@@ -619,11 +608,8 @@ public class SimpleSemanticListener extends SimpleParserBaseListener {
     }
 
     public void ejecutarModuloInicio(SimpleParser.ModuloInicioContext ctx) {
-        System.out.println("Definiendo moduloInicio:");
         String nombreModulo = ctx.ID().getText();
         String variableRetorno = ctx.nullOrNombre().getText();
-        System.out.println("Nombre de modulo: " + nombreModulo);
-        System.out.println("Variable de retorno: " + variableRetorno);
         if (globalTable.moduleExists(nombreModulo)) {
             System.err.println("ERROR: El modulo " + nombreModulo + " ya esta definido.");
             System.exit(0);
