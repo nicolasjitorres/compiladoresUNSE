@@ -20,8 +20,8 @@ class SymbolTable {
         variables.put(name, variable);
     }
 
-    public void defineModule(String name, String typeReturn, String valueReturn) {
-        Module module = new Module(name, typeReturn, valueReturn);
+    public void defineModule(String name, String typeReturn, String valueReturn, SimpleParser.ModuloInicioContext ctx) {
+        Module module = new Module(name, typeReturn, valueReturn, ctx);
         modules.put(name, module);
     }
 

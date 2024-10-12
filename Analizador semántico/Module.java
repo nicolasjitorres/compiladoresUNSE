@@ -2,16 +2,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Module {
-    private String name; // Nombre del módulo
-    private String typeReturn; // Tipo de retorno del módulo
-    private String valueReturn; // Valor de retorno del módulo
+    private String name;
+    private String typeReturn;
+    private String valueReturn;
+    private SimpleParser.ModuloInicioContext ctx;
     private List<Parametro> parametros;
 
     // Constructor
-    public Module(String name, String typeReturn, String valueReturn) {
+    public Module(String name, String typeReturn, String valueReturn, SimpleParser.ModuloInicioContext ctx) {
         this.name = name;
         this.typeReturn = typeReturn;
         this.valueReturn = valueReturn;
+        this.ctx = ctx;
         this.parametros = new ArrayList<>();
     }
 
@@ -38,6 +40,10 @@ public class Module {
         return valueReturn;
     }
 
+    public SimpleParser.ModuloInicioContext getContext(){
+        return ctx;
+    }
+
     // Métodos setter
     public void setNombre(String name) {
         this.name = name;
@@ -49,6 +55,10 @@ public class Module {
 
     public void setValueReturn(String valueReturn) {
         this.valueReturn = valueReturn;
+    }
+
+    public void setContext(SimpleParser.ModuloInicioContext ctx){
+        this.ctx = ctx;
     }
 
     // Método para mostrar información del módulo

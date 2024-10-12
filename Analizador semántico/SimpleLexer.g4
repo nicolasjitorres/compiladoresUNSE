@@ -1,6 +1,10 @@
 lexer grammar SimpleLexer;
 // REGLAS DEL LEXER
 
+// Comentarios (estos los debería de omitir)
+COMENTARIO: '/*' .*? '*/' -> skip;
+
+
 // Símbolos
 LPAREN   : '(';
 RPAREN   : ')';
@@ -24,9 +28,6 @@ OPERADORLOGICO: 'AND' | 'OR';
 
 // Booleanos
 BOOLEANO: 'TRUE' | 'FALSE';
-
-// Comentarios (estos los debería de omitir)
-COMENTARIO: '/' .? '*/' -> skip;
 
 // Tipos de dato
 STRING: 'STRING';

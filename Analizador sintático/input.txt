@@ -1,5 +1,0 @@
-IF ((a > 7) AND ((b < 11) OR (c == 4))) : 
-    PRINT("Condición cumplida"); 
-ENDIF; 
-
-INT suma = (5 x 6) x (4 + 8);

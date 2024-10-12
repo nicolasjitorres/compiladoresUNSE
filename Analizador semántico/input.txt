@@ -1,10 +1,9 @@
-IF(2 > 1):
-INT x = 4;
-PRINT(x); 
-ENDIF;
+/*HOLA COMO TAS*/
 
-IF(2 < 1):
-ELSE:
-STRING y = "hola";
-PRINT(y); 
-ENDIF;
+MODULE MyModule(INT x, STRING y):
+x = x + 2 * 6;
+PRINT(x);
+PRINT(y);
+RETURN x;
+
+CALL MODULE MyModule(2, "hola");
